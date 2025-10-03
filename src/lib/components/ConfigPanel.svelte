@@ -1,93 +1,78 @@
 <script lang="ts">
-	import { Label } from '$lib/components/ui/label';
-	import { Input } from '$lib/components/ui/input';
-	import { Checkbox } from '$lib/components/ui/checkbox';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
-	import { Slider } from '$lib/components/ui/slider';
-	import { Separator } from '$lib/components/ui/separator';
+	import type { TSchema, TSchemaProperty } from '../../registry/components';
 
-	// Configuration state
-	let textValue = $state('Item 1');
-	let isOpen = $state(true);
-	let selectedType = $state('One');
-	let sizeValue = $state(50);
+	// import { Label } from '$lib/components/ui/label';
+	// import { Input } from '$lib/components/ui/input';
+	// import { Checkbox } from '$lib/components/ui/checkbox';
+	// import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	// import { Slider } from '$lib/components/ui/slider';
+	// import { Separator } from '$lib/components/ui/separator';
 
-	const typeOptions = [{ label: 'Single', value: 'single' }, { label: 'Multiple', value: 'multiple' }];
+	// // Configuration state
+	// let textValue = $state('Item 1');
+	// let isOpen = $state(true);
+	// let selectedType = $state('One');
+	// let sizeValue = $state(50);
+
+	// const typeOptions = [{ label: 'Single', value: 'single' }, { label: 'Multiple', value: 'multiple' }];
+
+	const { schema, config = $bindable() }: { schema: TSchema; config: Record<string, any> } = $props();
+
 </script>
 
-<div class="p-6 h-full">
-	<h2 class="text-lg font-semibold mb-6">Configuration</h2>
+<div class="h-full p-6">
+	<h2 class="mb-6 text-lg font-semibold">Configuration</h2>
 
 	<div class="space-y-6">
-		<!-- Text Configuration -->
-		<div class="space-y-2">
-			<Label for="text-input" class="text-sm font-medium">Text</Label>
-			<Input 
-				id="text-input" 
-				bind:value={textValue} 
-				placeholder="Enter text..." 
-				class="w-full"
-			/>
-		</div>
+		{#each Object.entries(schema) as [key, prop]}
+			{#if prop.type === 'string'}
+				<div class="space-y-2">
+					<label class="text-sm font-medium">{prop.label}</label>
+					<input
+						type="text"
+						bind:value={config[key]}
+						class="rounded-md border px-3 py-2 focus:ring-2 focus:ring-primary focus:outline-none"
+					/>
+					{#if prop.description}
+						<p class="text-xs text-muted-foreground">{prop.description}</p>
+					{/if}
+				</div>
+			{:else if prop.type === 'boolean'}
+				<div class="flex items-center space-x-2">
+					<input
+						type="checkbox"
+						bind:checked={config[key]}
+						class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+					/>
+					<label class="text-sm font-medium">{prop.label}</label>
+				</div>
+			{:else if prop.type === 'select'}
+				<div class="space-y-1">
+					<label class="text-sm font-medium">{prop.label}</label>
+					{#if prop.values}
+						<select
+							bind:value={config[key]}
+							class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-primary focus:outline-none"
+						>
+							{#each prop.values as option}
+								<option value={option.value}>{option.label}</option>
+							{/each}
+						</select>
+					{/if}
 
-		<Separator />
-
-		<!-- Open Configuration -->
-		<div class="space-y-3">
-			<Label class="text-sm font-medium">Open</Label>
-			<div class="flex items-center space-x-2">
-				<Checkbox 
-					bind:checked={isOpen} 
-					id="open-checkbox" 
-				/>
-				<Label for="open-checkbox" class="text-sm">On</Label>
-			</div>
-		</div>
-
-		<Separator />
-
-		<!-- Type Configuration -->
-		<div class="space-y-2">
-			<Label class="text-sm font-medium">Type</Label>
-			<Select items={typeOptions} type="single" bind:value={selectedType}>
-				<SelectTrigger class="w-full">
-					<span>{selectedType}</span>
-				</SelectTrigger>
-				<SelectContent>
-					{#each typeOptions as option}
-						<SelectItem value={option.value}>{option.label}</SelectItem>
-					{/each}
-				</SelectContent>
-			</Select>
-		</div>
-
-		<Separator />
-
-		<!-- Size Configuration -->
-		<div class="space-y-3">
-			<Label class="text-sm font-medium">Size</Label>
-			<div class="px-1">
-				<Slider 
-					bind:value={sizeValue}
-					max={100}
-					min={0}
-					step={1}
-                    type="single"
-					class="w-full"
-				/>
-			</div>
-			<div class="text-xs text-muted-foreground text-center">
-				{sizeValue}
-			</div>
-		</div>
-
-		<!-- Preview Values (for development) -->
-		<div class="mt-8 p-4 rounded-lg bg-muted/50 text-xs">
-			<div class="font-medium mb-2">Current Values:</div>
-			<div>Text: {textValue}</div>
-			<div>Open: {isOpen}</div>
-			<div>Type: {selectedType}</div>
-			<div>Size: {sizeValue}</div>
-		</div>
+					{#if prop.description}
+						<p class="text-xs text-muted-foreground">{prop.description}</p>
+					{/if}
+				</div>
+			{:else if prop.type === 'number'}
+				<div class="space-y-1">
+					<label class="text-sm font-medium">{prop.label}: {config[key]}</label>
+					<input type="range" bind:value={config[key]} class="w-full" />
+					{#if prop.description}
+						<p class="text-xs text-muted-foreground">{prop.description}</p>
+					{/if}
+				</div>
+			{/if}
+		{/each}
 	</div>
 </div>

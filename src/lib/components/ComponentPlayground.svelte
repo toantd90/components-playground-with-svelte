@@ -7,9 +7,10 @@
 	import TabsDemo from '$lib/components/demos/TabsDemo.svelte';
 	import ToastDemo from '$lib/components/demos/ToastDemo.svelte';
 	import ConfigPanel from '$lib/components/ConfigPanel.svelte';
+	import { registries } from '../../registry/components';
 
 	let darkMode = $state(false);
-	let selectedComponent = $state('accordion');
+	let selectedComponent = $state('input');
 
 	// Apply dark mode changes when darkMode state changes
 	$effect(() => {
@@ -19,6 +20,15 @@
 			document.documentElement.classList.remove('dark');
 		}
 	});
+
+	const registry = registries[0];
+	const Component = registry.component;
+
+	let config = $state<Record<string, unknown>>({});
+    const schema = registry.schema;
+	for (const key in schema) {
+		config[key] = schema[key].default;
+	}
 </script>
 
 <div class="min-h-screen bg-background text-foreground">
@@ -36,16 +46,25 @@
 	<div class="flex">
 		<!-- Main Content -->
 		<div class="flex-1 p-6">
-			<Tabs value="accordion" class="w-full">
-				<TabsList class="grid grid-cols-4 w-fit">
-					<TabsTrigger value="accordion">Accordion</TabsTrigger>
+			<Tabs value="input" class="w-full">
+				<TabsList class="grid w-fit grid-cols-4">
+					<TabsTrigger value="input">Input</TabsTrigger>
+					<!-- <TabsTrigger value="accordion">Accordion</TabsTrigger>
 					<TabsTrigger value="modal">Modal</TabsTrigger>
 					<TabsTrigger value="tabs">Tabs</TabsTrigger>
-					<TabsTrigger value="toast">Toast</TabsTrigger>
+					<TabsTrigger value="toast">Toast</TabsTrigger> -->
 				</TabsList>
 
 				<div class="mt-6">
-					<TabsContent value="accordion" class="space-y-4 flex border rounded-sm p-4">
+					<TabsContent value="input" class="flex space-y-4 rounded-sm border p-4">
+						<div class="w-full p-4">
+							<Component {...(config as any)} />
+						</div>
+						<div class="w-80 max-w-xs border-l border-border bg-card">
+							<ConfigPanel schema={registry.schema || {}} bind:config />
+						</div>
+					</TabsContent>
+					<!-- <TabsContent value="accordion" class="space-y-4 flex border rounded-sm p-4">
 						<AccordionDemo />
                         <div class="w-80 border-l border-border bg-card">
                             <ConfigPanel/>
@@ -62,7 +81,7 @@
 
 					<TabsContent value="toast" class="space-y-4">
 						<ToastDemo />
-					</TabsContent>
+					</TabsContent> -->
 				</div>
 			</Tabs>
 		</div>
