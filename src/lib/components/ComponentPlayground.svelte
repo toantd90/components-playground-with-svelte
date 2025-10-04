@@ -24,11 +24,41 @@
 	const registry = registries[0];
 	const Component = registry.component;
 
+	// Theme-aware color defaults
+	const getThemeColors = (isDark: boolean) => ({
+		borderColor: isDark ? '#4b5563' : '#d1d5db',
+		textColor: isDark ? '#f9fafb' : '#374151',
+		backgroundColor: isDark ? '#1f2937' : '#ffffff',
+		focusColor: isDark ? '#60a5fa' : '#3b82f6'
+	});
+
 	let config = $state<Record<string, unknown>>({});
 	const schema = registry.schema;
-	for (const key in schema) {
-		config[key] = schema[key].default;
-	}
+
+	// Initialize config with theme-aware defaults
+	const initializeConfig = () => {
+		const themeColors = getThemeColors(darkMode);
+		for (const key in schema) {
+			if (key in themeColors) {
+				config[key] = themeColors[key as keyof typeof themeColors];
+			} else {
+				config[key] = schema[key].default;
+			}
+		}
+	};
+
+	// Initialize config on mount
+	initializeConfig();
+
+	// Update color values when theme changes
+	$effect(() => {
+		const themeColors = getThemeColors(darkMode);
+		for (const colorKey of ['borderColor', 'textColor', 'backgroundColor', 'focusColor']) {
+			if (colorKey in themeColors) {
+				config[colorKey] = themeColors[colorKey as keyof typeof themeColors];
+			}
+		}
+	});
 </script>
 
 <div class="min-h-screen bg-background text-foreground">
@@ -59,7 +89,7 @@
 					<TabsContent value="input" class="flex h-[calc(100vh-200px)] rounded-sm border">
 						<div class="flex flex-1 items-start justify-center overflow-hidden p-4">
 							<div class="sticky top-4">
-								<Component {...config as any} />
+								<Component {...config as any} {darkMode} />
 							</div>
 						</div>
 						<div class="w-80 max-w-xs overflow-y-auto border-l border-border bg-card">

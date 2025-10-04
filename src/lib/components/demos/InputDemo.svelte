@@ -22,7 +22,9 @@
 		borderColor = '#d1d5db',
 		textColor = '#374151',
 		backgroundColor = '#ffffff',
-		focusColor = '#3b82f6'
+		focusColor = '#3b82f6',
+		// Theme prop
+		darkMode = false
 	}: {
 		type?: HTMLInputTypeAttribute;
 		value?: string;
@@ -42,6 +44,8 @@
 		textColor?: string;
 		backgroundColor?: string;
 		focusColor?: string;
+		// Theme prop
+		darkMode?: boolean;
 	} = $props();
 
 	// Generate CSS custom properties for dynamic styling
@@ -63,11 +67,11 @@
 		}[size]
 	);
 
-	// Variant styles
+	// Variant styles - theme-aware
 	const variantClasses = $derived(
 		{
 			outlined: 'border-2',
-			filled: 'border-0 bg-gray-100',
+			filled: darkMode ? 'border-0 bg-gray-800' : 'border-0 bg-gray-100',
 			ghost: 'border-0 bg-transparent'
 		}[variant]
 	);
