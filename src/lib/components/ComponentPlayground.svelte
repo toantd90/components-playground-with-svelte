@@ -25,7 +25,7 @@
 	const Component = registry.component;
 
 	let config = $state<Record<string, unknown>>({});
-    const schema = registry.schema;
+	const schema = registry.schema;
 	for (const key in schema) {
 		config[key] = schema[key].default;
 	}
@@ -56,11 +56,13 @@
 				</TabsList>
 
 				<div class="mt-6">
-					<TabsContent value="input" class="flex space-y-4 rounded-sm border p-4">
-						<div class="w-full p-4">
-							<Component {...(config as any)} />
+					<TabsContent value="input" class="flex h-[calc(100vh-200px)] rounded-sm border">
+						<div class="flex flex-1 items-start justify-center overflow-hidden p-4">
+							<div class="sticky top-4">
+								<Component {...config as any} />
+							</div>
 						</div>
-						<div class="w-80 max-w-xs border-l border-border bg-card">
+						<div class="w-80 max-w-xs overflow-y-auto border-l border-border bg-card">
 							<ConfigPanel schema={registry.schema || {}} bind:config />
 						</div>
 					</TabsContent>
